@@ -18,8 +18,15 @@ async function getUserInvestments(phoneNo) {
     }
   }
   
-  async function addInvestment(planId, phoneNo, amount, durationLeft, investedAt, endDate) {
+  async function addInvestment(planId, phoneNo, amount, durationLeft) {
     try {
+      // Generate investedAt as today's date
+      const investedAt = new Date();
+  
+      // Calculate endDate by adding durationLeft months to investedAt
+      const endDate = new Date(investedAt);
+      endDate.setMonth(endDate.getMonth() + durationLeft);
+  
       const result = await client.query(
         'INSERT INTO public."investments" ("PlanId", "PhoneNo", "Amount", "DurationLeft", "CurrentAmount", "InvestedAt", "EndDate") VALUES ($1, $2, $3, $4, $3, $5, $6) RETURNING *',
         [planId, phoneNo, amount, durationLeft, investedAt, endDate]
@@ -46,16 +53,15 @@ async function getUserInvestments(phoneNo) {
   });
   
   router.post('/investments', async (req, res) => {
-    const { planId, phoneNo, amount, durationLeft, investedAt, endDate } = req.body;
+    const { planId, phoneNo, amount, durationLeft } = req.body;
   
     try {
-      const investment = await addInvestment(planId, phoneNo, amount, durationLeft, investedAt, endDate);
+      const investment = await addInvestment(planId, phoneNo, amount, durationLeft);
       res.json(investment);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
   });
-  
   // ... (other routes and code)
   
 
