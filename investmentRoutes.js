@@ -32,7 +32,7 @@ async function getUserInvestments(phoneNo) {
         [planId, phoneNo, amount, durationLeft, investedAt, endDate]
       );
   
-      // Refresh the portfolio materialized view
+      // Refresh the portfolio materialized view  
       await client.query('SELECT refresh_portfolio()');
   
       return result.rows[0];
