@@ -15,7 +15,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: LoginPage(), // Assuming the user starts at the LoginPage
+      home: LoginPage(),
+      debugShowCheckedModeBanner:
+          false, // Assuming the user starts at the LoginPage
       routes: {
         '/dashboard': (context) => DashboardPage(), // Route for DashboardScreen
       },
