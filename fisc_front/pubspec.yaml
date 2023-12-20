@@ -64,7 +64,9 @@ flutter:
     - assets/logo.png
     - assets/bbc1.png
     - assets/background2.png
-
+    - assets/pngwing.com.png
+    - assets/paytm.png
+    - assets/bhim-upi-icon.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
