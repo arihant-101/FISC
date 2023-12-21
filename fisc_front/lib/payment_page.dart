@@ -2,18 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PaymentPage extends StatefulWidget {
-  final double monthlyInvestment;
-  final String planDetails;
-  final double returnAmount;
   final double totalAmount;
-  final int duration;
 
   PaymentPage({
-    required this.monthlyInvestment,
-    required this.planDetails,
-    required this.returnAmount,
     required this.totalAmount,
-    required this.duration,
   });
 
   @override
@@ -22,11 +14,23 @@ class PaymentPage extends StatefulWidget {
 
 class _PaymentPageState extends State<PaymentPage> {
   String? _selectedPaymentMethod;
-  final List<String> _paymentMethods = [
-    'Google Pay',
-    'Cash',
-    'BHIM UPI',
-    'Paytm'
+  final List<Map<String, dynamic>> _paymentMethods = [
+    {
+      'name': 'Google Pay',
+      'url':
+          'https://play.google.com/store/apps/details?id=com.google.android.apps.nbu.paisa.user',
+      'image': 'assets/google_pay.png',
+    },
+    {
+      'name': 'BHIM UPI',
+      'url': 'https://play.google.com/store/apps/details?id=in.org.npci.upiapp',
+      'image': 'assets/bhim_upi.png',
+    },
+    {
+      'name': 'Paytm',
+      'url': 'https://play.google.com/store/apps/details?id=net.one97.paytm',
+      'image': 'assets/paytm.png',
+    },
   ];
 
   void _showPaymentSuccessfulDialog() {
@@ -35,7 +39,8 @@ class _PaymentPageState extends State<PaymentPage> {
       builder: (context) => AlertDialog(
         title: Text('Payment Successful'),
         content: Text(
-            'Your payment of ₹${widget.totalAmount.toStringAsFixed(2)} has been successfully processed.'),
+          'Your payment of ₹${widget.totalAmount.toStringAsFixed(2)} has been successfully processed.',
+        ),
         actions: [
           TextButton(
             child: Text('OK'),
@@ -52,182 +57,140 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Payment Page'),
-        backgroundColor: Colors.deepPurple,
+        title: Text('Make Payment'),
+        backgroundColor: Colors.black,
+        centerTitle: true,
+        elevation: 0,
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/dope.png'),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Column(
-            children: [
-              Container(
-                color: Colors.deepPurple,
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Text(
-                  "PAY NOW",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Container(
-                  margin: EdgeInsets.only(left: 10, top: 5, bottom: 10),
-                  padding: EdgeInsets.all(5),
-                  color: Colors.red,
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Text(
-                      "BACK",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.deepPurple[50],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Plan Details:',
+                      'Total Amount to Pay:',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
+                        color: Colors.black,
                       ),
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      widget.planDetails,
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Amount:',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
-                      ),
-                    ),
-                    SizedBox(height: 8),
                     Text(
                       '₹${widget.totalAmount.toStringAsFixed(2)}',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Return on Investment:',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
+                        color: Colors.black,
                       ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '₹${widget.returnAmount.toStringAsFixed(2)}',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Total Amount after ${widget.duration} months:',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '₹${widget.totalAmount.toStringAsFixed(2)}',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 10),
-              Text(
-                "Select method to make payment",
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Text(
+                "Select a payment method",
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Colors.black,
                 ),
               ),
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 10),
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  children: _paymentMethods.map((method) {
-                    return ListTile(
-                      leading: Radio<String>(
-                        activeColor: Colors.brown,
-                        value: method,
-                        groupValue: _selectedPaymentMethod,
-                        onChanged: (String? value) {
-                          setState(() {
-                            _selectedPaymentMethod = value;
-                          });
-                        },
+            ),
+            const SizedBox(height: 15),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _paymentMethods.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedPaymentMethod = _paymentMethods[index]['name'];
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 20,
                       ),
-                      title: Text(
-                        method,
-                        style: TextStyle(color: Colors.black),
+                      child: Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Row(
+                            children: [
+                              Container(
+                                width: 50,
+                                height: 50,
+                                margin: EdgeInsets.only(right: 16),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                      _paymentMethods[index]['image'],
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                _paymentMethods[index]['name'],
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          trailing: _selectedPaymentMethod ==
+                                  _paymentMethods[index]['name']
+                              ? Icon(
+                                  Icons.check,
+                                  color: Colors.green,
+                                )
+                              : null,
+                        ),
                       ),
-                    );
-                  }).toList(),
-                ),
+                    ),
+                  );
+                },
               ),
-              ElevatedButton(
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   primary: Colors.green,
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
-                child: Text('Pay Now'),
                 onPressed: () async {
-                  if (_selectedPaymentMethod == 'Cash') {
-                    _showPaymentSuccessfulDialog();
-                    return;
-                  }
-
                   String? url;
-                  switch (_selectedPaymentMethod) {
-                    case 'Google Pay':
-                      url =
-                      'https://play.google.com/store/apps/details?id=com.google.android.apps.nbu.paisa.user';
-                      break;
-                    case 'Paytm':
-                      url =
-                      'https://play.google.com/store/apps/details?id=net.one97.paytm';
-                      break;
-                    case 'BHIM UPI':
-                      url =
-                      'https://play.google.com/store/apps/details?id=in.org.npci.upiapp';
-                      break;
-                  }
+                  var selectedMethod = _paymentMethods.firstWhere(
+                    (method) => method['name'] == _selectedPaymentMethod,
+                    orElse: () => {'url': null},
+                  );
+
+                  url = selectedMethod['url'];
 
                   if (url != null && await canLaunch(url)) {
                     await launch(url);
@@ -238,10 +201,17 @@ class _PaymentPageState extends State<PaymentPage> {
                     ));
                   }
                 },
+                child: Text(
+                  'Pay Now',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-              SizedBox(height: 20),
-            ],
-          ),
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );

@@ -1,8 +1,4 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-
 import 'dashboard_page.dart';
 import 'signup_screen.dart';
 
@@ -19,270 +15,267 @@ class LoginApp extends StatelessWidget {
   }
 }
 
-class LoginPage extends StatelessWidget {
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
 
-  Future<void> login(BuildContext context) async {
-    final String phoneNo = phoneController.text.trim();
-    final String password = passwordController.text.trim();
+class _LoginPageState extends State<LoginPage> {
+  bool _isObscure = true; // Variable to control password visibility
+  bool _isEmailFocused = false;
+  bool _isPasswordFocused = false;
 
-    try {
-      final response = await http.post(
-        Uri.parse('http://10.0.2.2:3000/api/login'),
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'phoneNo': phoneNo,
-          'password': password,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        // Successful login, handle the response if needed
-        print('Login successful');
-        print(response.body);
-
-        // Navigate to the dashboard
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DashboardPage(),
-          ),
-        );
-      } else if (response.statusCode == 400) {
-        // Invalid phone number or password
-        print('Invalid phone number or password');
-        // Show a pop-up informing the user about the issue
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Login Failed'),
-              content:
-                  Text('Invalid phone number or password. Please try again.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      } else if (response.statusCode == 404) {
-        // User not found
-        print('User not found');
-        // Show a pop-up informing the user that the account doesn't exist
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('User Not Found'),
-              content: Text(
-                  'The account with this phone number does not exist. Please sign up.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      } else {
-        // Handle other cases
-        print('Login failed with status code: ${response.statusCode}');
-        print(response.body);
-        // Show a generic error message to the user
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Login Failed'),
-              content:
-                  Text('An unexpected error occurred. Please try again later.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      }
-    } catch (error) {
-      // Handle any other errors
-      print('Error during login: $error');
-      // Show a generic error message to the user
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Login Failed'),
-            content:
-                Text('An unexpected error occurred. Please try again later.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    }
+  // Function to handle tapping outside of text fields to dismiss keyboard
+  void _handleTap() {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _isEmailFocused = false;
+      _isPasswordFocused = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/background2.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: SingleChildScrollView(
+      resizeToAvoidBottomInset: false,
+      body: GestureDetector(
+        onTap: _handleTap,
+        child: Container(
+          color: Colors.black,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
               Container(
-                height: 300,
+                height: 240,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 3,
+                      blurRadius: 7,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
                 child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        'Welcome back',
-                        style: TextStyle(
-                          fontSize: 32,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Login to access your account below.',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 50.0),
+                    child: Image.asset(
+                      'assets/image.png',
+                      height: 120,
+                    ),
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: <Widget>[
-                    TextFormField(
-                      controller: phoneController,
-                      decoration: InputDecoration(
-                        labelText: 'Phone Number',
-                        hintText: 'Enter your phone number...',
-                        prefixIcon: Icon(Icons.phone),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    TextFormField(
-                      controller: passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        hintText: 'Enter your password...',
-                        prefixIcon: Icon(Icons.lock),
-                        suffixIcon: Icon(
-                            Icons.visibility), // Password visibility toggle
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => login(context),
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.blue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Container(
-                        width: double.infinity,
-                        alignment: Alignment.center,
-                        padding: EdgeInsets.all(16),
-                        child: Text(
-                          'Login',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text(
+                                'Welcome back',
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                'Login to access your account below.',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () {
-                        // Implement Forgot Password functionality here
-                      },
-                      child: Text(
-                        'Forgot Password?',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: <Widget>[
+                              TextFormField(
+                                decoration: InputDecoration(
+                                  hintText: 'Enter your email...',
+                                  prefixIcon: Icon(Icons.email),
+                                  filled: true,
+                                  fillColor: Colors.grey[200],
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(color: Colors.white),
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 20,
+                                  ),
+                                  labelStyle: TextStyle(
+                                    color: _isEmailFocused
+                                        ? Colors.green
+                                        : Colors.white,
+                                    fontWeight: FontWeight
+                                        .bold, // Making the label bold
+                                  ),
+                                ),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors
+                                      .black, // Changing text color to black
+                                  fontWeight: FontWeight
+                                      .bold, // Making the input text bold
+                                ),
+                                keyboardType: TextInputType.emailAddress,
+                                textInputAction: TextInputAction.next,
+                                onTap: () {
+                                  setState(() {
+                                    _isEmailFocused = true;
+                                    _isPasswordFocused = false;
+                                  });
+                                  print('Email field tapped');
+                                },
+                                onEditingComplete: () {
+                                  print('Email editing completed');
+                                },
+                              ),
+                              SizedBox(height: 16),
+                              TextFormField(
+                                obscureText: _isObscure,
+                                decoration: InputDecoration(
+                                  hintText: 'Enter your password...',
+                                  prefixIcon: Icon(Icons.lock),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _isObscure
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _isObscure = !_isObscure;
+                                      });
+                                    },
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.grey[200],
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(color: Colors.green),
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 20,
+                                  ),
+                                  labelStyle: TextStyle(
+                                    color: _isPasswordFocused
+                                        ? Colors.green
+                                        : Colors.white,
+                                    fontWeight: FontWeight
+                                        .bold, // Making the label bold
+                                  ),
+                                ),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors
+                                      .black, // Changing text color to black
+                                  fontWeight: FontWeight
+                                      .bold, // Making the input text bold
+                                ),
+                                onTap: () {
+                                  setState(() {
+                                    _isPasswordFocused = true;
+                                    _isEmailFocused = false;
+                                  });
+                                  print('Password field tapped');
+                                },
+                                onEditingComplete: () {
+                                  print('Password editing completed');
+                                },
+                              ),
+                              SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DashboardPage(),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors.green, // Green vibrant color
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: Container(
+                                  width: double.infinity,
+                                  alignment: Alignment.center,
+                                  padding: EdgeInsets.all(16),
+                                  child: Text(
+                                    'Login',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              TextButton(
+                                onPressed: () {
+                                  // Implement Forgot Password functionality here
+                                },
+                                child: Text(
+                                  'Forgot Password?',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => SignupPage(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  "Don't have an account? Create",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                    SizedBox(height: 8),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => SignupPage()),
-                        );
-                      },
-                      child: Text(
-                        "Don't have an account? Create",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    TextButton(
-                      onPressed: () {
-                        // Implement Continue as Guest functionality here
-                      },
-                      child: Text(
-                        'Continue as Guest',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],

@@ -1,5 +1,7 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
+
 import 'payment_page.dart';
 
 void main() {
@@ -36,7 +38,7 @@ class _InvestmentDetailPageState extends State<InvestmentDetailPage> {
             SizedBox(height: 32),
             _buildEstimatedReturnCard(),
             SizedBox(height: 32),
-            _buildProceedButton(),
+            _buildProceedButton(context),
             SizedBox(height: 16),
           ],
         ),
@@ -92,7 +94,8 @@ class _InvestmentDetailPageState extends State<InvestmentDetailPage> {
           items: durationOptions.map((int value) {
             return DropdownMenuItem<int>(
               value: value,
-              child: Text('$value months', style: TextStyle(color: Colors.deepPurple)),
+              child: Text('$value months',
+                  style: TextStyle(color: Colors.deepPurple)),
             );
           }).toList(),
           onChanged: (int? value) {
@@ -137,7 +140,7 @@ class _InvestmentDetailPageState extends State<InvestmentDetailPage> {
     );
   }
 
-  Widget _buildProceedButton() {
+  Widget _buildProceedButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
         if (monthlyInvestment <= 0) {
@@ -157,7 +160,7 @@ class _InvestmentDetailPageState extends State<InvestmentDetailPage> {
   }
 
   void calculateEstimatedReturn() {
-    double annualRate = 5.0 / 100; // Annual interest rate (5.0%)
+    double annualRate = 4.0 / 100; // Annual interest rate (5.0%)
     double monthlyRate = annualRate / 12; // Monthly interest rate
     int months = duration ?? 0;
     double totalReturn = 0;
@@ -171,15 +174,14 @@ class _InvestmentDetailPageState extends State<InvestmentDetailPage> {
     });
   }
 
-
-
   void _showInvalidAmountDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Invalid Monthly Investment'),
-          content: Text('Please enter a valid monthly investment amount greater than 0.'),
+          content: Text(
+              'Please enter a valid monthly investment amount greater than 0.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -243,7 +245,7 @@ class _InvestmentDetailPageState extends State<InvestmentDetailPage> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                        '',
+                        '', // Add your terms and conditions here
                         style: TextStyle(fontSize: 16, color: Colors.black),
                       ),
                     ),
@@ -274,9 +276,11 @@ class _InvestmentDetailPageState extends State<InvestmentDetailPage> {
                         ElevatedButton(
                           onPressed: accepted
                               ? () {
-                            Navigator.of(context).pop(); // Close the dialog
-                            _proceedToPayment(context); // Navigate to the payment page
-                          }
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                  _proceedToPayment(
+                                      context); // Navigate to the payment page
+                                }
                               : null,
                           style: ElevatedButton.styleFrom(
                             primary: accepted ? Colors.green : Colors.grey,
@@ -301,11 +305,7 @@ class _InvestmentDetailPageState extends State<InvestmentDetailPage> {
       context,
       MaterialPageRoute(
         builder: (context) => PaymentPage(
-          monthlyInvestment: monthlyInvestment,
-          planDetails: 'RiskLevel', // Replace with the actual risk level
-          returnAmount: estimatedReturn,
           totalAmount: monthlyInvestment * (duration ?? 0) + estimatedReturn,
-          duration: duration ?? 0,
         ),
       ),
     );
