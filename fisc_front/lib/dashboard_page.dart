@@ -8,6 +8,7 @@ import 'portfolio_page.dart';
 import 'setting_screen.dart';
 import 'portfolio_value_widget.dart';
 import 'tutorial_card.dart';
+import 'user.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -63,8 +64,8 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Column(
             children: <Widget>[
               UserAccountsDrawerHeader(
-                accountName: Text('Raj Shekhar'),
-                accountEmail: Text('raj.21gmail.com'),
+                accountName: Text(loggedInUser?.name ?? ''),
+                accountEmail: Text(loggedInUser?.phoneNo ?? ''),
                 currentAccountPicture: CircleAvatar(
                   backgroundColor: Colors.black,
                   child: Icon(

@@ -7,6 +7,24 @@ const router = express.Router();
 
 const secret = 'CE9786DAE64949DB15DD1E9ADF466';
 
+const verifyToken = (req, res, next) => {
+  const token = req.header('Authorization');
+
+  if (!token) {
+    return res.status(401).json({ error: 'Access denied. Token not provided.' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, secret);
+    req.user = decoded; // Attach user information to the request object
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: 'Invalid token.' });
+  }
+};
+
+
+
 async function signup(name, phoneNo, email, password, kycVerified = false) {
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -67,6 +85,35 @@ async function login(phoneNo, password) {
     throw error;
   }
 }
+
+router.get('/user/profile', verifyToken, async (req, res) => {
+  try {
+    const phoneNo = req.user.userId; // Extract user information from the decoded token
+    const userResult = await client.query(
+      'SELECT * FROM public."user" WHERE "PhoneNo" = $1',
+      [phoneNo]
+    );
+
+    const user = userResult.rows[0];
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    // Only return necessary user information, avoid sending sensitive data
+    const userProfile = {
+      Name: user.Name,
+      PhoneNo: user.PhoneNo,
+      Email: user.Email,
+      KycVerified: user.KycVerified,
+      createdAt: user.createdAt,
+    };
+
+    res.json(userProfile);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
   
 router.post('/signup', async (req, res) => {
   const { name, phoneNo, email, password, kycVerified } = req.body;

@@ -1,8 +1,7 @@
-import 'package:fisc_front/kyc1.dart';
-
-import 'login_page.dart';
 import 'package:flutter/material.dart';
-//import 'kyc1.dart';
+import 'dashboard_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() {
   runApp(SignupApp());
@@ -24,6 +23,61 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   bool _isObscure = true;
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _phoneController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
+  // Function to handle signup logic
+  Future<void> signUp(BuildContext context) async {
+    final String fullName = _nameController.text.trim();
+    final String phoneNo = _phoneController.text.trim();
+    final String password = _passwordController.text.trim();
+
+    // Check if any required fields are empty
+    if (fullName.isEmpty || phoneNo.isEmpty || password.isEmpty) {
+      print('Please fill in all required fields.');
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:3000/api/signup'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'name': fullName,
+          'phoneNo': phoneNo,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Successful signup, handle the response if needed
+        print('Signup successful');
+        print(response.body);
+
+        // Navigate to the dashboard
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DashboardPage(),
+          ),
+        );
+      } else if (response.statusCode == 409) {
+        // Phone number already in use
+        print('Phone number already in use');
+        // You can show a pop-up or a snackbar to inform the user that the phone number is already in use
+      } else {
+        // Handle signup failure
+        print('Signup failed');
+        print(response.body);
+      }
+    } catch (error) {
+      // Handle any other errors
+      print('Error during signup: $error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +126,7 @@ class _SignupPageState extends State<SignupPage> {
                       child: Text(
                         'FISC',
                         style: TextStyle(
-                          color: Colors.green, // Change 'FISC' color to green
+                          color: Colors.green,
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
                         ),
@@ -81,6 +135,7 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     SizedBox(height: 30),
                     TextFormField(
+                      controller: _nameController,
                       decoration: InputDecoration(
                         hintText: 'Enter your full name',
                         prefixIcon: Icon(Icons.person),
@@ -93,9 +148,12 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     SizedBox(height: 16),
                     TextFormField(
+                      keyboardType: TextInputType.phone,
+                      maxLength: 10,
+                      controller: _phoneController,
                       decoration: InputDecoration(
-                        hintText: 'Enter your email',
-                        prefixIcon: Icon(Icons.email),
+                        hintText: 'Enter your phone number',
+                        prefixIcon: Icon(Icons.phone),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -106,6 +164,7 @@ class _SignupPageState extends State<SignupPage> {
                     SizedBox(height: 16),
                     TextFormField(
                       obscureText: _isObscure,
+                      controller: _passwordController,
                       decoration: InputDecoration(
                         hintText: 'Create a password',
                         prefixIcon: Icon(Icons.lock),
@@ -133,14 +192,7 @@ class _SignupPageState extends State<SignupPage> {
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    KYC1Page()), // Assuming KYC1Page is the widget in kyc1.dart
-                          );
-                        },
+                        onPressed: () => signUp(context),
                         style: ElevatedButton.styleFrom(
                           primary: Colors.green,
                         ),
@@ -155,11 +207,8 @@ class _SignupPageState extends State<SignupPage> {
                       width: double.infinity,
                       child: TextButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LoginPage()),
-                          );
+                          // Navigate to the login screen
+                          Navigator.pop(context);
                         },
                         child: Text(
                           'Already have an account? Login',
