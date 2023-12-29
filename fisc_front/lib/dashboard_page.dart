@@ -1,14 +1,13 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'payment_page.dart';
 import 'GoldInvestmentInput.dart';
 import 'kyc1.dart';
 import 'upcoming_transaction.dart';
-import 'investment_detail_page.dart';
 import 'portfolio_page.dart';
 import 'setting_screen.dart';
 import 'portfolio_value_widget.dart';
 import 'tutorial_card.dart';
-import 'gold_advertise.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -98,18 +97,6 @@ class _DashboardPageState extends State<DashboardPage> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => PortfolioPage(),
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.trending_up, color: Colors.green),
-                title: Text('Investments Details'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => InvestmentDetailPage(),
                     ),
                   );
                 },
@@ -243,7 +230,6 @@ class _DashboardPageState extends State<DashboardPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 GoldInput(), // New widget for investing in gold
-                GoldAdvertise(),
               ],
             ),
         ],
@@ -354,7 +340,6 @@ class _DashboardPageState extends State<DashboardPage> {
         compoundAmount =
             compoundAmount * (1 + monthlyRate) + repeatingContribution;
       }
-      totalReturn = compoundAmount - repeatingContribution;
     }
 
     double profit = totalReturn - compoundFrequency * duration;
@@ -377,7 +362,16 @@ class _DashboardPageState extends State<DashboardPage> {
         SizedBox(height: 12),
         ElevatedButton(
           onPressed: () {
-            // Add logic for the Invest Now button
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PaymentPage(
+                    totalAmount: initialamount,
+                    duration: selectedDuration.toString(),
+                    frequency: selectedFrequency.toString(),
+                  ),
+                ) // Navigate to PaymentPage
+                );
           },
           style: ElevatedButton.styleFrom(
             primary: Colors.green,

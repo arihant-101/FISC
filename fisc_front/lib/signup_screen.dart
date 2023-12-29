@@ -1,4 +1,4 @@
-import 'package:fisc_front/investment_detail_page.dart';
+import 'package:fisc_front/kyc1.dart';
 
 import 'login_page.dart';
 import 'package:flutter/material.dart';
@@ -138,7 +138,7 @@ class _SignupPageState extends State<SignupPage> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    InvestmentDetailPage()), // Assuming KYC1Page is the widget in kyc1.dart
+                                    KYC1Page()), // Assuming KYC1Page is the widget in kyc1.dart
                           );
                         },
                         style: ElevatedButton.styleFrom(

@@ -3,9 +3,13 @@ import 'package:url_launcher/url_launcher.dart';
 
 class PaymentPage extends StatefulWidget {
   final double totalAmount;
+  final String duration;
+  final String frequency;
 
   PaymentPage({
     required this.totalAmount,
+    required this.duration,
+    required this.frequency,
   });
 
   @override
@@ -19,12 +23,12 @@ class _PaymentPageState extends State<PaymentPage> {
       'name': 'Google Pay',
       'url':
           'https://play.google.com/store/apps/details?id=com.google.android.apps.nbu.paisa.user',
-      'image': 'assets/google_pay.png',
+      'image': 'assets/pngwing.com.png', // Replace with your image file
     },
     {
       'name': 'BHIM UPI',
       'url': 'https://play.google.com/store/apps/details?id=in.org.npci.upiapp',
-      'image': 'assets/bhim_upi.png',
+      'image': 'assets/bhim-upi-icon.png',
     },
     {
       'name': 'Paytm',
@@ -74,22 +78,37 @@ class _PaymentPageState extends State<PaymentPage> {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Total Amount to Pay:',
+                      'Investment Details:',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     ),
+                    const SizedBox(height: 8),
                     Text(
-                      '₹${widget.totalAmount.toStringAsFixed(2)}',
+                      'Total Amount: ₹${widget.totalAmount.toStringAsFixed(2)}',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      'Duration: ${widget.duration} months',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      'Frequency: ${widget.frequency}',
+                      style: TextStyle(
+                        fontSize: 16,
                         color: Colors.black,
                       ),
                     ),
@@ -132,31 +151,21 @@ class _PaymentPageState extends State<PaymentPage> {
                         ),
                         child: ListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: Row(
-                            children: [
-                              Container(
-                                width: 50,
-                                height: 50,
-                                margin: EdgeInsets.only(right: 16),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  image: DecorationImage(
-                                    image: AssetImage(
-                                      _paymentMethods[index]['image'],
-                                    ),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
+                          leading: Image.asset(
+                            _paymentMethods[index]['image'],
+                            height: 50, // Adjust the size as needed
+                            width: 50, // Adjust the size as needed
+                          ),
+                          title: Padding(
+                            padding: const EdgeInsets.only(left: 16.0),
+                            child: Text(
+                              _paymentMethods[index]['name'],
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                               ),
-                              Text(
-                                _paymentMethods[index]['name'],
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                           trailing: _selectedPaymentMethod ==
                                   _paymentMethods[index]['name']
