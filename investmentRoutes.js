@@ -17,6 +17,28 @@ async function getUserInvestments(phoneNo) {
   }
 }
 
+async function updateInvestment(investmentId, updatedFields) {
+  try {
+    const result = await client.query(
+      'UPDATE public."investments" SET "PlanId" = $1, "Amount" = $2, "MonthsLeft" = $3, "DurationLeft" = $4, "Status" = $5, "Frequency" = $6 WHERE "InvestmentId" = $7 RETURNING *',
+      [
+        updatedFields.planId,
+        updatedFields.amount,
+        updatedFields.monthsLeft,
+        updatedFields.DurationLeft,
+        updatedFields.status,
+        updatedFields.frequency,
+        investmentId
+      ]
+    );
+
+    return result.rows[0];
+  } catch (error) {
+    throw error;
+  }
+}
+
+
 // Function to add an investment without authentication
 async function addInvestment(planId, phoneNo, amount, monthsLeft, DurationLeft, CurrentAmount, status, frequency) {
   try {
@@ -69,6 +91,18 @@ router.post('/investments', async (req, res) => {
     res.json(investment);
   } catch (error) {
     res.status(500).json({ error: 'Error creating investment', details: error.message });
+  }
+});
+
+router.put('/investments/:investmentId', async (req, res) => {
+  const investmentId = req.params.investmentId;
+  const updatedFields = req.body;
+
+  try {
+    const updatedInvestment = await updateInvestment(investmentId, updatedFields);
+    res.json(updatedInvestment);
+  } catch (error) {
+    res.status(500).json({ error: 'Error updating investment', details: error.message });
   }
 });
 

@@ -56,6 +56,42 @@ router.get('/transactions/:PhoneNo', async (req, res) => {
   }
 });
 
+router.post('/create-transaction', async (req, res) => {
+  try {
+    const {
+      InvestmentId,
+      PhoneNo,
+      Amount,
+      Status,
+      GeneratedAt,
+      DueDate
+    } = req.body;
+
+    // Include your payment processing logic here (e.g., validate payment)
+
+    // Insert a new transaction record into the database
+    const query = `
+      INSERT INTO public."transactions" ("InvestmentId", "PhoneNo", "Amount", "Status", "GeneratedAt", "DueDate")
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *;
+    `;
+
+    const { rows } = await db.query(query, [
+      InvestmentId,
+      PhoneNo,
+      Amount,
+      Status,
+      GeneratedAt,
+      DueDate
+    ]);
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while creating the transaction.' });
+  }
+});
+
 // Update the status and PaidAt date of a transaction (e.g., when a transaction is completed)
 router.patch('/transactions/:TransactionId', async (req, res) => {
   const { TransactionId } = req.params;

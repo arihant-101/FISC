@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'user.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class PaymentPage extends StatefulWidget {
   final double totalAmount;
@@ -55,6 +58,124 @@ class _PaymentPageState extends State<PaymentPage> {
         ],
       ),
     );
+  }
+
+  int investid = 0;
+  Future<void> _createInvestmentAndTransaction() async {
+    try {
+      // Step 1: Create Investment
+      await _createInvestment();
+
+      // Ensure the investment creation was successful
+      // Step 2: Create Transaction
+      await _createTransaction(
+          investid); // Replace 'investmentId' with the actual field name
+
+      // Step 3: Update Investment Status
+      await _updateInvestmentStatus(
+          investid); // Replace 'investmentId' with the actual field name
+
+      // Show payment successful dialog
+      _showPaymentSuccessfulDialog();
+    } catch (error) {
+      // Handle any errors that occurred during the process
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('An error occurred. Please try again.'),
+      ));
+    }
+  }
+
+  Future<void> _createInvestment() async {
+    try {
+      // Prepare the JSON payload
+      final Map<String, dynamic> requestBody = {
+        'planId': 1, // Replace with the actual plan ID
+        'phoneNo': "8805939500", // Replace with the user's phone number
+        'amount': widget.totalAmount,
+        'monthsLeft': widget.duration,
+        'DurationLeft': widget.duration,
+        'CurrentAmount': widget.totalAmount,
+        'status': "Active",
+        'frequency': widget.frequency,
+      };
+
+      // Convert the map to JSON
+      final String jsonBody = json.encode(requestBody);
+
+      // Make an API request to create a new investment
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:3000/api/investments'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonBody,
+      );
+
+      if (response.statusCode == 200) {
+        // Investment created successfully
+        final Map<String, dynamic> investmentResponse =
+            json.decode(response.body);
+
+        final int InvestmentId = investmentResponse['InvestmentId'];
+        investid = InvestmentId;
+
+        print('Investment created successfully');
+      } else {
+        // Handle error if the investment creation fails
+        print('Error creating investment: ${response.body}');
+      }
+    } catch (error) {
+      // Handle any exception that may occur during the API request
+      print('Error creating investment: $error');
+    }
+  }
+
+  Future<void> _createTransaction(int investid) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:3000/api/create-transaction'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'InvestmentId': investid,
+          'PhoneNo':
+              loggedInUser?.phoneNo, // Replace with the user's phone number
+          'Amount': widget.totalAmount,
+          'Status':
+              "pending", // You might want to adjust this based on your logic
+          'GeneratedAt': DateTime.now().toIso8601String(),
+          'DueDate': DateTime.now().toIso8601String(),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Transaction created successfully
+        print('Transaction created successfully');
+      } else {
+        // Handle error if transaction creation fails
+        print('Error creating transaction: ${response.body}');
+      }
+    } catch (error) {
+      // Handle any exception that may occur during the API request
+      print('Error creating transaction: $error');
+    }
+  }
+
+  Future<void> _updateInvestmentStatus(int investmentId) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('http://10.0.2.2:3000/api//investments/$investid'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'Status': "Active"}), // Set the desired status
+      );
+
+      if (response.statusCode == 200) {
+        print('Investment status updated successfully');
+      } else {
+        print('Failed to update investment status: ${response.statusCode}');
+        // Handle error if needed
+      }
+    } catch (error) {
+      print('Error updating investment status: $error');
+      // Handle error if needed
+    }
   }
 
   @override
@@ -193,22 +314,8 @@ class _PaymentPageState extends State<PaymentPage> {
                   ),
                 ),
                 onPressed: () async {
-                  String? url;
-                  var selectedMethod = _paymentMethods.firstWhere(
-                    (method) => method['name'] == _selectedPaymentMethod,
-                    orElse: () => {'url': null},
-                  );
-
-                  url = selectedMethod['url'];
-
-                  if (url != null && await canLaunch(url)) {
-                    await launch(url);
-                    _showPaymentSuccessfulDialog();
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text('Could not launch $_selectedPaymentMethod'),
-                    ));
-                  }
+                  // Call the function to create investments and transactions
+                  await _createInvestmentAndTransaction();
                 },
                 child: Text(
                   'Pay Now',
