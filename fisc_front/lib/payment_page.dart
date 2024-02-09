@@ -90,7 +90,8 @@ class _PaymentPageState extends State<PaymentPage> {
       // Prepare the JSON payload
       final Map<String, dynamic> requestBody = {
         'planId': 1, // Replace with the actual plan ID
-        'phoneNo': "8805939500", // Replace with the user's phone number
+        'phoneNo':
+            loggedInUser?.phoneNo, // Replace with the user's phone number
         'amount': widget.totalAmount,
         'monthsLeft': widget.duration,
         'DurationLeft': widget.duration,
