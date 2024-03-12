@@ -5,7 +5,7 @@ const client = require('./pgdatabase');
 
 const router = express.Router();
 
-const secret = 'CE9786DAE64949DB15DD1E9ADF466';
+
 
 const verifyToken = (req, res, next) => {
   const token = req.header('Authorization');
